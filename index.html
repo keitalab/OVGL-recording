@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="normalize.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+    <main class="wrapper">
+        <div class="container">
+            <div class="cameras">
+                <video id="video-tl">Video stream not available.</video>
+                <video id="video-tr"></video>
+                <video id="video-bl"></video>
+                <video id="video-br"></video>
+            </div>
+            <div>
+                <select></select>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+        crossorigin="anonymous"></script>
+    <script type="text/javascript" src="recording.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+                console.log("enumerateDevices() not supported.");
+                return;
+            }
+            navigator.mediaDevices.enumerateDevices()
+                .then(function (devices) {
+                    devices.forEach(function (device) {
+                        console.log(device.kind + ": " + device.label + " id = " + device.deviceId);
+                    });
+                })
+                .catch(function (err) {
+                    console.log(err.name + ": " + err.message);
+                });
+        });
+    </script>
+</body>
+
+</html>
