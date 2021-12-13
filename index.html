@@ -5,49 +5,88 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>オープンビデオゲームライブラリ アーカイブ機能</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="normalize.css">
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 
 <body>
-    <main class="wrapper">
+    <header class="wrapper">
         <div class="container">
-            <div class="cameras">
-                <video id="video-tl">Video stream not available.</video>
-                <video id="video-tr"></video>
-                <video id="video-bl"></video>
-                <video id="video-br"></video>
+            <h1>オープンビデオゲームライブラリ アーカイブ機能</h1>
+        </div>
+    </header>
+
+    <main class="wrapper main-wrapper">
+        <div class="container">
+
+            <div class="content-wrapper">
+                <select id="mic" class="mic-select">
+                    <option value="none">マイクを選択してください</option>
+                </select>
             </div>
-            <div>
-                <select></select>
+
+            <div class="content-wrapper">
+                <button id="btn-recording-start" class="btn-recording" onclick="clickBtnRecordingStart()">録画開始</button>
+                <button id="btn-recording-stop" class="btn-recording" onclick="clickBtnRecordingStop()" style="display:none;">録画停止</button>
             </div>
+            
+            <div class="content-wrapper">
+                <div class="camera-select-wrapper">
+                    <!-- <span><i class="fas fa-video"></i>①</span> -->
+                    <select id="camera-tl" class="camera-select">
+                        <option value="none">カメラを選択してください</option>
+                    </select>
+                    <select id="camera-tr" class="camera-select">
+                        <option value="none">カメラを選択してください</option>
+                    </select>
+                </div>
+
+                <canvas id="cameras">It does not support this browser.</canvas>
+
+                <div class="camera-select-wrapper">
+                    <select id="camera-bl" class="camera-select">
+                        <option value="none">カメラを選択してください</option>
+                    </select>
+                    <select id="camera-br" class="camera-select">
+                        <option value="none">カメラを選択してください</option>
+                    </select>
+                </div>
+            </div>
+
         </div>
     </main>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-        crossorigin="anonymous"></script>
     <script type="text/javascript" src="recording.js"></script>
     <script type="text/javascript">
-        $(function () {
+        window.addEventListener('load', (event) => {
+            //////// canvasに線を描画 ////////
+            drawLineToCanvas(0, canvasHeight / 2, canvasWidth, canvasHeight / 2);
+            drawLineToCanvas(canvasWidth / 2, 0, canvasWidth / 2, canvasHeight);
+            drawIconToCanvas('\uF4E2', canvasWidth / 4, canvasHeight / 4);
+            drawIconToCanvas('\uF4E2', (canvasWidth / 4) * 3, canvasHeight / 4);
+            drawIconToCanvas('\uF4E2', canvasWidth / 4, (canvasHeight / 4) * 3);
+            drawIconToCanvas('\uF4E2', (canvasWidth / 4) * 3, (canvasHeight / 4) * 3);
+
+            //////// デバイスの認識 ////////
             (async () => {
                 await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-                let devices = await navigator.mediaDevices.enumerateDevices();
-                console.log(devices);
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                let isAddedAudio = false;
+                Array.from(camera_select).map(async (cs, index) => {
+                    devices.map(device => {
+                        const option = document.createElement("option");
+                        option.value = device.deviceId;
+                        option.text = device.label;
+                        if (device.kind === "videoinput") cs.appendChild(option);
+                        else if (device.kind === "audioinput" && !isAddedAudio) {
+                            document.getElementById("mic").appendChild(option);
+                        }
+                    });
+                    isAddedAudio = true;
+                });
             })();
-            // (async () => {
-            //     await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-            //     await navigator.mediaDevices.enumerateDevices()
-            //         .then(function (devices) {
-            //             devices.forEach(function (device) {
-            //                 console.log(device.kind + ": " + device.label + " id = " + device.deviceId);
-            //             });
-            //         })
-            //         .catch(function (err) {
-            //             console.log(err.name + ": " + err.message);
-            //         });
-            // })();
         });
     </script>
 </body>

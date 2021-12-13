@@ -1,34 +1,88 @@
+@charset "UTF-8";
+body {
+  font-family: 'Avenir','Helvetica Neue','Helvetica','Arial','Hiragino Sans','ヒラギノ角ゴシック',YuGothic,'Yu Gothic','メイリオ', Meiryo,'ＭＳ Ｐゴシック','MS PGothic',sans-serif;
+}
+
 .wrapper {
   width: 100%;
-  background-color: #fefefe;
+  padding: 8px 0;
 }
 
 .container {
-  margin: 20px auto;
-  width: 100%;
-  /* max-width: 1280px; */
+  margin: auto;
+  width: 1280px;
 }
 
-.cameras {
+.main-wrapper {
+  background-color: #f4f4f4;
+}
+
+.camera-select-wrapper {
+  margin: 0;
   width: 100%;
+  margin: 0 auto;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  -ms-flex-wrap: wrap;
-      flex-wrap: wrap;
 }
 
-.cameras * {
+.camera-select-wrapper .camera-select {
   -ms-flex-preferred-size: 50%;
       flex-basis: 50%;
 }
 
-.cameras video, .cameras canvas {
-  border: 1px solid gray;
-  background-color: #fefefe;
+#cameras {
+  width: 1280px;
+  height: 720px;
+  border: 1px gray solid;
 }
 
-input[type="button"] {
-  border: 1px solid black;
+.content-wrapper {
+  width: 100%;
+  padding: 8px 0;
+  text-align: center;
+}
+
+#mic {
+  display: block;
+  width: 50%;
+  margin: 0 auto;
+}
+
+.btn-recording {
+  display: inline-block;
+  padding: 0.25em 0.5em;
+  text-decoration: none;
+  border-radius: 8px;
+  -webkit-box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 0 rgba(0, 0, 0, 0.05);
+          box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 0 rgba(0, 0, 0, 0.05);
+  font-weight: bold;
+  font-size: 32px;
+}
+
+.btn-recording:active {
+  -webkit-box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
+#btn-recording-start {
+  color: red;
+  background: white;
+  border: solid 2px red;
+}
+
+#btn-recording-stop {
+  color: white;
+  background: red;
+  border: solid 2px white;
+}
+
+ul {
+  list-style: none;
+}
+
+h1 {
+  font-size: 1.4em;
+  font-weight: normal;
 }
 /*# sourceMappingURL=style.css.map */
