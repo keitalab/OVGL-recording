@@ -20,17 +20,6 @@
 
     <main class="wrapper main-wrapper">
         <div class="container">
-
-            <div class="content-wrapper">
-                <select id="mic" class="mic-select">
-                    <option value="none">マイクを選択してください</option>
-                </select>
-            </div>
-
-            <div class="content-wrapper">
-                <button id="btn-recording-start" class="btn-recording" onclick="clickBtnRecordingStart()">録画開始</button>
-                <button id="btn-recording-stop" class="btn-recording" onclick="clickBtnRecordingStop()" style="display:none;">録画停止</button>
-            </div>
             
             <div class="content-wrapper">
                 <div class="camera-select-wrapper">
@@ -53,6 +42,18 @@
                         <option value="none">カメラを選択してください</option>
                     </select>
                 </div>
+            </div>
+
+            <div class="content-wrapper">
+                <select id="mic" class="mic-select">
+                    <option value="none">マイクを選択してください</option>
+                </select>
+            </div>
+            
+            <div class="content-wrapper">
+                <button id="btn-recording-start" class="btn-recording" onclick="clickBtnRecordingStart()">録画開始</button>
+                <button id="btn-recording-stop" class="btn-recording" onclick="clickBtnRecordingStop()"
+                    style="display:none;">録画停止</button>
             </div>
 
         </div>
