@@ -149,7 +149,7 @@ function stopVideo(videoIndex) {
             });
             video_tl.srcObject = null;
             canvasCtx.clearRect(0, 0, canvasWidth / 2, canvasHeight / 2);
-            drawIconToCanvas('\uF03D', canvasWidth / 4, canvasHeight / 4);
+            drawIconToCanvas('\uF4E2', canvasWidth / 4, canvasHeight / 4);
             break;
         case 1:
             video_tr.pause();
@@ -158,7 +158,7 @@ function stopVideo(videoIndex) {
             });
             video_tr.srcObject = null;
             canvasCtx.clearRect(canvasWidth / 2, 0, canvasWidth / 2, canvasHeight / 2);
-            drawIconToCanvas('\uF03D', (canvasWidth / 4) * 3, canvasHeight / 4);
+            drawIconToCanvas('\uF4E2', (canvasWidth / 4) * 3, canvasHeight / 4);
             break;
         case 2:
             video_bl.pause();
@@ -167,7 +167,7 @@ function stopVideo(videoIndex) {
             });
             video_bl.srcObject = null;
             canvasCtx.clearRect(0, canvasHeight / 2, canvasWidth / 2, canvasHeight / 2);
-            drawIconToCanvas('\uF03D', canvasWidth / 4, (canvasHeight / 4) * 3);
+            drawIconToCanvas('\uF4E2', canvasWidth / 4, (canvasHeight / 4) * 3);
             break;
         case 3:
             video_br.pause();
@@ -176,7 +176,7 @@ function stopVideo(videoIndex) {
             });
             video_br.srcObject = null;
             canvasCtx.clearRect(canvasWidth / 2, canvasHeight / 2, canvasWidth / 2, canvasHeight / 2);
-            drawIconToCanvas('\uF03D', (canvasWidth / 4) * 3, (canvasHeight / 4) * 3);
+            drawIconToCanvas('\uF4E2', (canvasWidth / 4) * 3, (canvasHeight / 4) * 3);
             break;
         default:
             console.log(`Sorry, we are out of ${videoIndex}.`);
