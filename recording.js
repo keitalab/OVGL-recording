@@ -7,6 +7,11 @@ const btn_recording_stop = document.getElementById("btn-recording-stop");
 const canvas = document.getElementById("cameras");
 const canvasCtx = canvas.getContext('2d');
 
+// const videoBitRate = document.getElementById("videoBitRate");
+// const audioBitRate = document.getElementById("audioBitRate");
+const time_recording = document.getElementById("time-recording");
+const status_recording = document.getElementById("status-recording");
+
 const font = '900 48pt sans-serif';
 const fontAwesome = '900 64pt "Font Awesome 5 Free"';
 
@@ -16,9 +21,13 @@ let canvasHeight = 720;
 let video_tl, video_tr, video_bl, video_br;
 let mediaRecorder;
 let audioId = '';
+let isRecording = false;
 
 // 動画をcanvasに表示させるFPS（計算合ってるかあやしい）
-const fps = 120;
+const fps = 30;
+let timer_video_tl, timer_video_tr, timer_video_bl, timer_video_br;
+let time_recording_sec = 0;
+let timer_recording;
 
 window.addEventListener('load', (event) => {
     //////// イニシャライズ ////////
@@ -59,6 +68,13 @@ window.addEventListener('load', (event) => {
         else audioId = mic.value;
     }
 
+    // setInterval(() => {
+    //     if (isRecording) {
+    //         mediaRecorder.addEventListener('dataavailable', (event) => {
+    //             console.log(event.data);
+    //         });
+    //     }
+    // }, 1000);
 });
 
 //////// 録画 ////////
@@ -74,26 +90,44 @@ function clickBtnRecordingStart() {
         if (mediaRecorder.state == "recording") return;
         btn_recording_start.style.display = 'none';
         btn_recording_stop.style.display = 'inline-block';
+        timer_recording = setInterval(() => {
+            status_recording.innerHTML = mediaRecorder.state;
+            time_recording.innerHTML = transSecToTime(time_recording_sec);
+            time_recording_sec++;
+        }, 1000);
+        Array.from(camera_select).map((cs, index) => {
+            cs.disabled = true;
+        });
         mediaRecorder.start();
+        status_recording.innerHTML = mediaRecorder.state;
+        isRecording = true;
     });
 }
 function clickBtnRecordingStop() {
     if (mediaRecorder.state == "inactive") return;
     btn_recording_start.style.display = 'inline-block';
     btn_recording_stop.style.display = 'none';
+    Array.from(camera_select).map((cs, index) => {
+        cs.disabled = false;
+    });
     mediaRecorder.stop();
+    isRecording = false;
 
     //////// ダウンロード表示 ////////
     mediaRecorder.addEventListener('dataavailable', (event) => {
         // console.log(event.data);
         // if (event.data && event.data.size > 0) {
-            // ダウンロード用のリンクを準備
-            const anchor = document.createElement('a');
-            const videoBlob = new Blob([event.data], { type: event.data.type });
-            blobUrl = window.URL.createObjectURL(videoBlob);
-            anchor.download = getNow() + '.webm';
-            anchor.href = blobUrl;
-            anchor.click();
+        // ダウンロード用のリンクを準備
+        const anchor = document.createElement('a');
+        const videoBlob = new Blob([event.data], { type: event.data.type });
+        blobUrl = window.URL.createObjectURL(videoBlob);
+        anchor.download = getNow() + '.webm';
+        anchor.href = blobUrl;
+        anchor.click();
+        clearInterval(timer_recording);
+        status_recording.innerHTML = mediaRecorder.state;
+        time_recording.innerHTML = '00:00:00';
+        time_recording_sec = 0;
         // }
     });
 }
@@ -104,36 +138,36 @@ function playVideo(videoIndex, stream) {
             video_tl.srcObject = stream;
             video_tl.onloadedmetadata = event => {
                 video_tl.play();
-                setInterval(() => {
+                timer_video_tl = setInterval(() => {
                     if (canvas && canvasCtx) canvasCtx.drawImage(video_tl, 0, 0, 640, 360);
-                }, 10000/fps);
+                }, 1000/fps);
             };
             break;
         case 1:
             video_tr.srcObject = stream;
             video_tr.onloadedmetadata = event => {
                 video_tr.play();
-                setInterval(() => {
+                timer_video_tr = setInterval(() => {
                     if (canvas && canvasCtx) canvasCtx.drawImage(video_tr, 640, 0, 640, 360);
-                }, 10000/fps);
+                }, 1000/fps);
             };
             break;
         case 2:
             video_bl.srcObject = stream;
             video_bl.onloadedmetadata = event => {
                 video_bl.play();
-                setInterval(() => {
+                timer_video_bl = setInterval(() => {
                     if (canvas && canvasCtx) canvasCtx.drawImage(video_bl, 0, 360, 640, 360);
-                }, 10000/fps);
+                }, 1000/fps);
             };
             break;
         case 3:
             video_br.srcObject = stream;
             video_br.onloadedmetadata = event => {
                 video_br.play();
-                setInterval(() => {
+                timer_video_br = setInterval(() => {
                     if (canvas && canvasCtx) canvasCtx.drawImage(video_br, 640, 360, 640, 360);
-                }, 10000/fps);
+                }, 1000/fps);
             };
             break;
         default:
@@ -147,6 +181,7 @@ function stopVideo(videoIndex) {
             video_tl.srcObject.getTracks().forEach(track => {
                 track.stop();
             });
+            clearInterval(timer_video_tl);
             video_tl.srcObject = null;
             canvasCtx.clearRect(0, 0, canvasWidth / 2, canvasHeight / 2);
             drawIconToCanvas('\uF4E2', canvasWidth / 4, canvasHeight / 4);
@@ -156,6 +191,7 @@ function stopVideo(videoIndex) {
             video_tr.srcObject.getTracks().forEach(track => {
                 track.stop();
             });
+            clearInterval(timer_video_tr);
             video_tr.srcObject = null;
             canvasCtx.clearRect(canvasWidth / 2, 0, canvasWidth / 2, canvasHeight / 2);
             drawIconToCanvas('\uF4E2', (canvasWidth / 4) * 3, canvasHeight / 4);
@@ -165,6 +201,7 @@ function stopVideo(videoIndex) {
             video_bl.srcObject.getTracks().forEach(track => {
                 track.stop();
             });
+            clearInterval(timer_video_bl);
             video_bl.srcObject = null;
             canvasCtx.clearRect(0, canvasHeight / 2, canvasWidth / 2, canvasHeight / 2);
             drawIconToCanvas('\uF4E2', canvasWidth / 4, (canvasHeight / 4) * 3);
@@ -174,6 +211,7 @@ function stopVideo(videoIndex) {
             video_br.srcObject.getTracks().forEach(track => {
                 track.stop();
             });
+            clearInterval(timer_video_br);
             video_br.srcObject = null;
             canvasCtx.clearRect(canvasWidth / 2, canvasHeight / 2, canvasWidth / 2, canvasHeight / 2);
             drawIconToCanvas('\uF4E2', (canvasWidth / 4) * 3, (canvasHeight / 4) * 3);
@@ -219,4 +257,10 @@ function getNow() {
     const min = ('00' + now.getMinutes()).slice(-2);
     const s = ('00' + now.getSeconds()).slice(-2);
     return y + m + d + '_' + h + min + s;
+}
+function transSecToTime(sec) {
+    const h = ('00' + parseInt(sec / 3600)).slice(-2);
+    const m = ('00' + parseInt(sec / 60)).slice(-2);
+    const s = ('00' + (sec - ((h * 3600) + (m * 60)))).slice(-2);
+    return h + ':' + m + ':' + s;
 }

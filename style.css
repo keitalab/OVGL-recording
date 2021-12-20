@@ -85,4 +85,18 @@ h1 {
   font-size: 1.4em;
   font-weight: normal;
 }
+
+.info-recording td {
+  width: 1px;
+  white-space: nowrap;
+}
+
+.content-container {
+  display: inline-block;
+  margin: auto;
+}
+
+h4 {
+  margin-bottom: 0;
+}
 /*# sourceMappingURL=style.css.map */
