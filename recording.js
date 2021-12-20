@@ -98,6 +98,7 @@ function clickBtnRecordingStart() {
         Array.from(camera_select).map((cs, index) => {
             cs.disabled = true;
         });
+        mic.disabled = true;
         mediaRecorder.start();
         status_recording.innerHTML = mediaRecorder.state;
         isRecording = true;
@@ -110,6 +111,7 @@ function clickBtnRecordingStop() {
     Array.from(camera_select).map((cs, index) => {
         cs.disabled = false;
     });
+    mic.disabled = false;
     mediaRecorder.stop();
     isRecording = false;
 
