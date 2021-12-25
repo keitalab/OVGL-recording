@@ -26,6 +26,7 @@ let isRecording = false;
 // 動画をcanvasに表示させるFPS（計算合ってるかあやしい）
 const fps = 30;
 let timer_video_tl, timer_video_tr, timer_video_bl, timer_video_br;
+let timer_audiowave_tl, timer_audiowave_tr, timer_audiowave_bl, timer_audiowave_br;
 let time_recording_sec = 0;
 let timer_recording;
 
@@ -46,8 +47,20 @@ window.addEventListener('load', (event) => {
     Array.from(camera_select).map((cs, index) => {
         cs.onchange = event => {
             if (cs.value === 'none') stopVideo(index);
-            else {
-                // console.log(cs.value);
+            else if (cs.value === 'audiowave') {
+                stopVideo(index);
+                navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        deviceId: audioId
+                    },
+                    video: false
+                }).then(stream => {
+                    playAudiowave(index, stream);
+                }).catch(function(e) {
+                    alert("ERROR: 音声の取得に失敗しました: " + e.message);
+                });
+            } else {
+                stopVideo(index);
                 navigator.mediaDevices.getUserMedia({
                     audio: false,
                     video: {
@@ -176,45 +189,137 @@ function playVideo(videoIndex, stream) {
             console.log(`Sorry, we are out of ${videoIndex}.`);
     }
 }
+function playAudiowave(audioIndex, stream) {
+    const audioContext = new AudioContext();
+    const sourceNode = audioContext.createMediaStreamSource(stream);
+    const analyserNode = audioContext.createAnalyser();
+    analyserNode.fftSize = 2048;
+    sourceNode.connect(analyserNode);
+
+    switch (audioIndex) {
+        case 0:
+            timer_audiowave_tl = setInterval(() => {
+                const barWidth = (canvasWidth / 2) / analyserNode.fftSize;
+                const array = new Uint8Array(analyserNode.fftSize);
+                analyserNode.getByteTimeDomainData(array);
+                canvasCtx.fillStyle = 'white';
+                canvasCtx.fillRect(0, 0, canvasWidth / 2, canvasHeight / 2);
+
+                for (let i = 0; i < analyserNode.fftSize; ++i) {
+                    const value = array[i];
+                    const percent = value / 255;
+                    const height = (canvasHeight / 2) * percent;
+                    const offset = (canvasHeight / 2) - height;
+
+                    canvasCtx.fillStyle = 'red';
+                    canvasCtx.fillRect(i * barWidth, offset, barWidth, 2);
+                }
+            }, 1000/fps);
+            break;
+        case 1:
+            timer_audiowave_tr = setInterval(() => {
+                const barWidth = (canvasWidth / 2) / analyserNode.fftSize;
+                const array = new Uint8Array(analyserNode.fftSize);
+                analyserNode.getByteTimeDomainData(array);
+                canvasCtx.fillStyle = 'white';
+                canvasCtx.fillRect(canvasWidth / 2, 0, canvasWidth / 2, canvasHeight / 2);
+
+                for (let i = 0; i < analyserNode.fftSize; ++i) {
+                    const value = array[i];
+                    const percent = value / 255;
+                    const height = (canvasHeight / 2) * percent;
+                    const offset = (canvasHeight / 2) - height;
+
+                    canvasCtx.fillStyle = 'red';
+                    canvasCtx.fillRect((canvasWidth / 2) + (i * barWidth), offset, barWidth, 2);
+                }
+            }, 1000/fps);
+            break;
+        case 2:
+            timer_audiowave_bl = setInterval(() => {
+                const barWidth = (canvasWidth / 2) / analyserNode.fftSize;
+                const array = new Uint8Array(analyserNode.fftSize);
+                analyserNode.getByteTimeDomainData(array);
+                canvasCtx.fillStyle = 'white';
+                canvasCtx.fillRect(0, canvasHeight / 2, canvasWidth / 2, canvasHeight / 2);
+
+                for (let i = 0; i < analyserNode.fftSize; ++i) {
+                    const value = array[i];
+                    const percent = value / 255;
+                    const height = (canvasHeight / 2) * percent;
+                    const offset = (canvasHeight / 2) - height;
+
+                    canvasCtx.fillStyle = 'red';
+                    canvasCtx.fillRect(i * barWidth, (canvasHeight / 2) + offset, barWidth, 2);
+                }
+            }, 1000/fps);
+            break;
+        case 3:
+            timer_audiowave_br = setInterval(() => {
+                const barWidth = (canvasWidth / 2) / analyserNode.fftSize;
+                const array = new Uint8Array(analyserNode.fftSize);
+                analyserNode.getByteTimeDomainData(array);
+                canvasCtx.fillStyle = 'white';
+                canvasCtx.fillRect(canvasWidth / 2, canvasHeight / 2, canvasWidth / 2, canvasHeight / 2);
+
+                for (let i = 0; i < analyserNode.fftSize; ++i) {
+                    const value = array[i];
+                    const percent = value / 255;
+                    const height = (canvasHeight / 2) * percent;
+                    const offset = (canvasHeight / 2) - height;
+
+                    canvasCtx.fillStyle = 'red';
+                    canvasCtx.fillRect((canvasWidth / 2) + i * barWidth, (canvasHeight / 2) + offset, barWidth, 2);
+                }
+            }, 1000/fps);
+            break;
+        default:
+            console.log(`Sorry, we are out of ${videoIndex}.`);
+    }
+}
 function stopVideo(videoIndex) {
     switch (videoIndex) {
         case 0:
-            video_tl.pause();
-            video_tl.srcObject.getTracks().forEach(track => {
-                track.stop();
-            });
+            if (video_tl.srcObject !== null) {
+                video_tl.pause();
+                video_tl.srcObject.getTracks().forEach(track => { track.stop(); }); 
+                video_tl.srcObject = null;
+            } 
             clearInterval(timer_video_tl);
-            video_tl.srcObject = null;
+            clearInterval(timer_audiowave_tl);
             canvasCtx.clearRect(0, 0, canvasWidth / 2, canvasHeight / 2);
             drawIconToCanvas('\uF4E2', canvasWidth / 4, canvasHeight / 4);
             break;
         case 1:
-            video_tr.pause();
-            video_tr.srcObject.getTracks().forEach(track => {
-                track.stop();
-            });
+            if (video_tr.srcObject !== null) {
+                video_tr.pause();
+                video_tr.srcObject.getTracks().forEach(track => { track.stop(); }); 
+                video_tr.srcObject = null;
+            } 
             clearInterval(timer_video_tr);
-            video_tr.srcObject = null;
+            clearInterval(timer_audiowave_tr);
             canvasCtx.clearRect(canvasWidth / 2, 0, canvasWidth / 2, canvasHeight / 2);
             drawIconToCanvas('\uF4E2', (canvasWidth / 4) * 3, canvasHeight / 4);
             break;
         case 2:
-            video_bl.pause();
-            video_bl.srcObject.getTracks().forEach(track => {
-                track.stop();
-            });
+            if (video_bl.srcObject !== null) {
+                video_bl.pause();
+                video_bl.srcObject.getTracks().forEach(track => { track.stop(); }); 
+                video_bl.srcObject = null;
+            } 
             clearInterval(timer_video_bl);
-            video_bl.srcObject = null;
+            clearInterval(timer_audiowave_bl);
             canvasCtx.clearRect(0, canvasHeight / 2, canvasWidth / 2, canvasHeight / 2);
             drawIconToCanvas('\uF4E2', canvasWidth / 4, (canvasHeight / 4) * 3);
             break;
         case 3:
-            video_br.pause();
-            video_br.srcObject.getTracks().forEach(track => {
-                track.stop();
-            });
+            if (video_br.srcObject !== null) {
+                video_br.pause();
+                video_br.srcObject.getTracks().forEach(track => { track.stop(); }); 
+                video_br.srcObject = null;
+            } 
             clearInterval(timer_video_br);
-            video_br.srcObject = null;
+            clearInterval(timer_audiowave_br);
             canvasCtx.clearRect(canvasWidth / 2, canvasHeight / 2, canvasWidth / 2, canvasHeight / 2);
             drawIconToCanvas('\uF4E2', (canvasWidth / 4) * 3, (canvasHeight / 4) * 3);
             break;
